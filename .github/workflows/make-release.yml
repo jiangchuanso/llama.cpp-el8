@@ -2,18 +2,6 @@ name: Make Release
 
 on:
   workflow_dispatch:
-    inputs:
-      commit:
-        description: 'Commit SHA to release (empty = branch HEAD)'
-        required: false
-        default: ''
-        type: string
-      dry_run:
-        description: 'Dry run - validate without creating the tag'
-        required: true
-        type: boolean
-        default: true
-
 env:
   GH_TOKEN: ${{ github.token }}
 

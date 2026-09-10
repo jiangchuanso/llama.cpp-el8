@@ -54,7 +54,10 @@ jobs:
           - build: 'arm64'
             os: ubuntu-24.04-arm
 
+    # GitHub-hosted runner acts as the host; the build runs inside an
+    # AlmaLinux 8 container (binary-compatible CentOS 8 replacement).
     runs-on: ${{ matrix.os }}
+    container: almalinux:8
 
     steps:
       - name: Clone
@@ -67,26 +70,30 @@ jobs:
           key: cpu-${{ matrix.os }}
           save: false
 
-      - name: Build Dependencies
+      - name: System Dependencies (EL8 / dnf)
         id: build_depends
         run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends \
-            python3 python3-pip python3-dev python3-wheel \
-            libjpeg-dev build-essential libssl-dev \
-            git-lfs
+          dnf -y install --setopt=install_weak_deps=False \
+            git git-lfs wget which tar jq \
+            gcc-toolset-13 \
+            make cmake ninja-build \
+            openssl-devel libjpeg-turbo-devel \
+            python3 python3-pip python3-devel \
+            glibc-langpack-en
+          git lfs install
+          # Put the modern GCC toolset ahead of the system GCC 10 on PATH
+          echo "PATH=/opt/rh/gcc-toolset-13/root/usr/bin:$PATH" >> "$GITHUB_ENV"
+          echo "CC=gcc" >> "$GITHUB_ENV"
+          echo "CXX=g++" >> "$GITHUB_ENV"
 
-      - name: Toolchain workaround (GCC 14)
-        if: ${{ contains(matrix.os, 'ubuntu-24.04') }}
-        run: |
-          sudo apt-get install -y gcc-14 g++-14
-          echo "CC=gcc-14" >> "$GITHUB_ENV"
-          echo "CXX=g++-14" >> "$GITHUB_ENV"
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
 
       - name: Python Dependencies
         id: python_depends
         run: |
-          export PIP_BREAK_SYSTEM_PACKAGES="1"
           python3 -m pip install --upgrade pip setuptools
           pip3 install ./gguf-py
 
@@ -140,6 +147,11 @@ jobs:
   windows:
     name: windows / ${{ matrix.build }}
     runs-on: windows-2025
+    # Auto CI only builds x64-cpu-static; the extra variants (openblas, arm64)
+    # are kept but run only on manual workflow_dispatch.
+    if: >-
+      matrix.build == 'x64-cpu-static' ||
+      github.event_name == 'workflow_dispatch'
 
     env:
       OPENBLAS_VERSION: 0.3.23
