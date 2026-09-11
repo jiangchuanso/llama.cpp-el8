@@ -34,6 +34,10 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref && github.ref || github.run_id }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+  actions: write # required by ccache-clear to delete old caches
+
 env:
   GGML_NLOOP: 3
   GGML_N_THREADS: 1
@@ -47,6 +51,7 @@ jobs:
 
   ubuntu:
     strategy:
+      fail-fast: false
       matrix:
         include:
           - build: 'x64'
@@ -78,18 +83,17 @@ jobs:
             gcc-toolset-13 \
             make cmake \
             openssl-devel libjpeg-turbo-devel \
-            python3 python3-pip python3-devel \
+            python3.11 python3.11-pip python3.11-devel \
             glibc-langpack-en
           git lfs install
+          # actions/setup-python cannot be used here: its CPython builds require a
+          # newer glibc than EL8 provides, so use the distro python3.11 instead
+          ln -sf /usr/bin/python3.11 /usr/local/bin/python3
+          ln -sf /usr/bin/pip3.11 /usr/local/bin/pip3
           # Put the modern GCC toolset ahead of the system GCC 10 on PATH
           echo "PATH=/opt/rh/gcc-toolset-13/root/usr/bin:$PATH" >> "$GITHUB_ENV"
           echo "CC=gcc" >> "$GITHUB_ENV"
           echo "CXX=g++" >> "$GITHUB_ENV"
-
-      - name: Set up Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: '3.11'
 
       - name: Python Dependencies
         id: python_depends
