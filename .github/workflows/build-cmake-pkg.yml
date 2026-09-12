@@ -5,7 +5,9 @@ on:
 
 jobs:
   linux:
-    runs-on: [self-hosted, Linux]
+    # self-hosted Linux runners are not provisioned for this fork, use a
+    # GitHub-hosted runner so the job does not queue forever
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v6
         with:
