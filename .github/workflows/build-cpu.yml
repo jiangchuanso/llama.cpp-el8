@@ -357,14 +357,34 @@ jobs:
         with:
           path: artifacts
 
+      # Drop the previous nightly release/tag so each run starts clean (the
+      # upload below only adds assets, it never removes stale ones).
+      - name: Remove previous nightly release (if any)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete nightly-cpu --yes || true
+          gh api -X DELETE repos/${{ github.repository }}/git/refs/tags/nightly-cpu || true
+
+      # Bundle each platform into a single archive. Uploading hundreds of loose
+      # binaries individually trips GitHub's secondary rate limit and causes
+      # basename collisions (ubuntu vs windows .exe), so publish one archive per
+      # platform instead. `tar` also descends into directories, so the cmake
+      # package (bin/ lib/ include/ ...) is captured in full.
+      - name: Package artifacts
+        run: |
+          cd artifacts
+          for d in llama-cpu-ubuntu-22.04 llama-cpu-ubuntu-24.04-arm llama-cpu-windows-x64-cpu-static llama-cmake-pkg; do
+            if [ -d "$d" ]; then
+              tar -czf "${d}.tar.gz" -C "$d" .
+            fi
+          done
+
       - name: Publish CPU build to nightly release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: nightly-cpu
           name: CPU Nightly Build
           prerelease: true
-          files: |
-            artifacts/llama-cpu-ubuntu-22.04/*
-            artifacts/llama-cpu-ubuntu-24.04-arm/*
-            artifacts/llama-cpu-windows-x64-cpu-static/*
-            artifacts/llama-cmake-pkg/*
+          overwrite_files: true
+          files: artifacts/*.tar.gz
