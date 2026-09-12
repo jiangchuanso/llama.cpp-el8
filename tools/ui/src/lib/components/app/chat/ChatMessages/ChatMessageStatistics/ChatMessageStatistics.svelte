@@ -4,6 +4,7 @@
 	import * as Tooltip from '$lib/components/ui/tooltip';
 	import { DEFAULT_PERFORMANCE_TIME, MS_PER_SECOND } from '$lib/constants';
 	import { ChatMessageStatisticsMode, ChatMessageStatsView } from '$lib/enums';
+	import { t } from '$lib/i18n';
 	import type { ChatMessageAgenticTimings } from '$lib/types/chat';
 	import { formatPerformanceTime } from '$lib/utils';
 	import type { Component } from 'svelte';
@@ -152,13 +153,13 @@
 				>
 					<IconComponent class="h-3 w-3" />
 
-					<span class="sr-only">{opts.label}</span>
+					<span class="sr-only">{t(opts.label)}</span>
 				</button>
 			{/snippet}
 		</Tooltip.Trigger>
 
 		<Tooltip.Content>
-			<p>{opts.tooltipText}</p>
+			<p>{t(opts.tooltipText)}</p>
 		</Tooltip.Content>
 	</Tooltip.Root>
 {/snippet}

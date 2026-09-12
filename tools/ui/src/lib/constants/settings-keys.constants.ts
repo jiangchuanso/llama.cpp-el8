@@ -66,6 +66,7 @@ export const SETTINGS_KEYS = {
 	// Sampling
 	TEMPERATURE: 'temperature',
 	// General
+	LANGUAGE: 'language',
 	THEME: 'theme',
 	TITLE_GENERATION_PROMPT: 'titleGenerationPrompt',
 	TITLE_GENERATION_USE_FIRST_LINE: 'titleGenerationUseFirstLine',
