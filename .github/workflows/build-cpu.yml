@@ -148,6 +148,13 @@ jobs:
           ./bin/llama-convert-llama2c-to-ggml --copy-vocab-from-model ./tok512.bin --llama2c-model stories260K.bin --llama2c-output-model stories260K.gguf
           ./bin/llama-completion -m stories260K.gguf -p "One day, Lily met a Shoggoth" -n 500 -c 256
 
+      - name: Upload binaries
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v6
+        with:
+          name: llama-cpu-${{ matrix.os }}
+          path: build/bin
+
   windows:
     name: windows / ${{ matrix.build }}
     runs-on: windows-2025
@@ -239,6 +246,13 @@ jobs:
           min: 1
           dry-run: ${{ github.event_name != 'push' || github.ref != 'refs/heads/master' }}
 
+      - name: Upload binaries
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v6
+        with:
+          name: llama-cpu-windows-${{ matrix.build }}
+          path: build/bin/Release
+
   # Extra Windows variants (OpenBLAS, arm64) that are outside the regular
   # CI matrix. They are kept runnable but only build on manual dispatch.
   windows-extra:
@@ -321,3 +335,36 @@ jobs:
           older: 5m
           min: 1
           dry-run: ${{ github.event_name != 'push' || github.ref != 'refs/heads/master' }}
+
+  # Publish the CPU build artifacts as a "nightly" pre-release. Reuses the
+  # artifacts already uploaded by the build jobs (no rebuild).
+  release:
+    name: Publish to Release
+    needs: [build-cmake-pkg, ubuntu, windows]
+    # Only on pushes to master (or manual dispatch), never on pull requests
+    if: >-
+      ${{
+        github.event_name == 'workflow_dispatch' ||
+        (github.event_name == 'push' && github.ref == 'refs/heads/master')
+      }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # required to create/update the release
+
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v7
+        with:
+          path: artifacts
+
+      - name: Publish CPU build to nightly release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: nightly-cpu
+          name: CPU Nightly Build
+          prerelease: true
+          files: |
+            artifacts/llama-cpu-ubuntu-22.04/*
+            artifacts/llama-cpu-ubuntu-24.04-arm/*
+            artifacts/llama-cpu-windows-x64-cpu-static/*
+            artifacts/llama-cmake-pkg/*

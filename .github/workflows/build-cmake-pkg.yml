@@ -53,3 +53,10 @@ jobs:
           cd examples/simple-cmake-pkg
           cmake -S . -B build -DCMAKE_PREFIX_PATH="$PREFIX"/lib/cmake
           cmake --build build -j $(nproc)
+
+      - name: Upload relocatable package
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v6
+        with:
+          name: llama-cmake-pkg
+          path: inst
