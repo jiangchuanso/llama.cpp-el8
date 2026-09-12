@@ -56,11 +56,14 @@ jobs:
         include:
           - build: 'x64'
             os: ubuntu-22.04
+            dist: 'el8-x64'
           - build: 'arm64'
             os: ubuntu-24.04-arm
+            dist: 'el8-arm64'
 
     # GitHub-hosted runner acts as the host; the build runs inside an
-    # AlmaLinux 8 container (binary-compatible CentOS 8 replacement).
+    # AlmaLinux 8 container (binary-compatible CentOS 8 replacement), so the
+    # resulting binaries are EL8 (glibc 2.28) builds regardless of the host.
     runs-on: ${{ matrix.os }}
     container: almalinux:8
 
@@ -152,7 +155,7 @@ jobs:
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v6
         with:
-          name: llama-cpu-${{ matrix.os }}
+          name: llama-cpu-${{ matrix.dist }}
           path: build/bin
 
   windows:
@@ -368,13 +371,13 @@ jobs:
 
       # Bundle each platform into a single archive. Uploading hundreds of loose
       # binaries individually trips GitHub's secondary rate limit and causes
-      # basename collisions (ubuntu vs windows .exe), so publish one archive per
+      # basename collisions (linux vs windows .exe), so publish one archive per
       # platform instead. `tar` also descends into directories, so the cmake
       # package (bin/ lib/ include/ ...) is captured in full.
       - name: Package artifacts
         run: |
           cd artifacts
-          for d in llama-cpu-ubuntu-22.04 llama-cpu-ubuntu-24.04-arm llama-cpu-windows-x64-cpu-static llama-cmake-pkg; do
+          for d in llama-cpu-el8-x64 llama-cpu-el8-arm64 llama-cpu-windows-x64-cpu-static llama-cmake-pkg; do
             if [ -d "$d" ]; then
               tar -czf "${d}.tar.gz" -C "$d" .
             fi
