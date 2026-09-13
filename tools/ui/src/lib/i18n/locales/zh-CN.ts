@@ -784,5 +784,48 @@ export const ZH_CN: Record<string, string> = {
 	'Open Sidebar': '打开侧边栏',
 	'Collapse navigation': '收起导航',
 	'Close Sidebar': '关闭侧边栏',
-	'Delete "{name}"? This action cannot be undone.': '删除“{name}”？此操作无法撤销。'
+	'Delete "{name}"? This action cannot be undone.': '删除“{name}”？此操作无法撤销。',
+
+	// ── Model selector (mobile sheet) & model load toasts ────────────────────
+	'Select Model': '选择模型',
+	'Choose a model to use for the conversation': '选择用于该对话的模型',
+	'Model loaded: {name}': '模型已加载：{name}',
+	'Model unloaded: {name}': '模型已卸载：{name}',
+	'Failed to load model: {name}': '加载模型失败：{name}',
+	'Failed to unload model: {name}': '卸载模型失败：{name}',
+	'Failed to save favorite models to local storage': '无法将收藏的模型保存到本地存储',
+	'Failed to load favorite models from local storage': '无法从本地存储读取收藏的模型',
+
+	// ── Attachments preview / PDF ────────────────────────────────────────────
+	'Unknown File': '未知文件',
+	preview: '预览',
+	'Go to {name}': '跳转到 {name}',
+	Text: '文本',
+	Pages: '页面',
+	'Preview only': '仅预览',
+	'The selected model does not support vision. Only the extracted': '所选模型不支持视觉，仅会将提取的',
+	text: '文本',
+	'will be sent to the model.': '发送给模型。',
+	'Converting PDF to images...': '正在将 PDF 转换为图像…',
+	'Failed to load PDF images': '加载 PDF 图像失败',
+	'Page {number}': '第 {number} 页',
+	'PDF Page {number}': 'PDF 第 {number} 页',
+	'No PDF pages available': '暂无 PDF 页面',
+
+	// ── Settings / sidebar / PWA ─────────────────────────────────────────────
+	'Applies to new conversations. Tool picks inside a chat only affect that chat.':
+		'仅对新对话生效。对话内的工具选择只影响该对话。',
+	Tool: '工具',
+	Enabled: '已启用',
+	Custom: '自定义',
+	'{count} conversations': '{count} 个对话',
+	'... and {count} more': '…还有 {count} 个',
+	'Search results': '搜索结果',
+	'Start typing to see results': '输入内容以查看结果',
+	'No items found': '未找到项目',
+	'Update available': '有可用更新',
+	'A new version is available. Reload to update.': '有新版本可用，重新加载以更新。',
+	Reload: '重新加载',
+	'Connecting to Server': '正在连接服务器',
+	'Initializing connection to server...': '正在初始化与服务器的连接…'
 };
