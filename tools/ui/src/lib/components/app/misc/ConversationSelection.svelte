@@ -4,8 +4,8 @@
 	import { Checkbox } from '$lib/components/ui/checkbox';
 	import { ScrollArea } from '$lib/components/ui/scroll-area';
 	import { UI_DATA_ATTRS } from '$lib/constants';
-	import { t } from '$lib/i18n';
 	import { useMarqueeSelection } from '$lib/hooks/use-marquee-selection.svelte';
+	import { t } from '$lib/i18n';
 	import { SvelteSet } from 'svelte/reactivity';
 
 	interface Props {

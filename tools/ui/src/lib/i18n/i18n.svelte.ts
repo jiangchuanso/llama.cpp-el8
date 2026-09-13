@@ -11,8 +11,8 @@
  * from there. This keeps a single source of truth for the preference.
  */
 
-import { browser } from '$app/environment';
 import { ZH_CN } from './locales/zh-CN';
+import { browser } from '$app/environment';
 
 export type Locale = 'en' | 'zh-CN';
 /** User preference: an explicit locale, or 'auto' to follow the browser. */

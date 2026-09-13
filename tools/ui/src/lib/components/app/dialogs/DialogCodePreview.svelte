@@ -1,7 +1,7 @@
 <script lang="ts">
 	import XIcon from '@lucide/svelte/icons/x';
-	import { Dialog as DialogPrimitive } from 'bits-ui';
 	import { t } from '$lib/i18n';
+	import { Dialog as DialogPrimitive } from 'bits-ui';
 
 	interface Props {
 		open: boolean;

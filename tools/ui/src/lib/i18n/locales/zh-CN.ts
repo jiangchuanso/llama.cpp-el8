@@ -6,6 +6,11 @@
  * the translation. Missing entries fall back to English automatically.
  */
 
+// Entries are grouped by UI area (see the section comments below) rather than
+// natural-sorted: the keys are full English sentences, so keeping related UI
+// text together is easier to maintain than alphabetical lookup.
+/* eslint-disable perfectionist/sort-objects -- grouped by UI area, not sorted by key */
+
 export const ZH_CN: Record<string, string> = {
 	// ── Settings sections ────────────────────────────────────────────────────
 	Agentic: '智能体',

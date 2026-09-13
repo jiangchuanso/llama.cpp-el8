@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Input } from '$lib/components/ui/input';
-	import { t } from '$lib/i18n';
 	import { Label } from '$lib/components/ui/label';
+	import { t } from '$lib/i18n';
 	import { fly } from 'svelte/transition';
 
 	interface Props {

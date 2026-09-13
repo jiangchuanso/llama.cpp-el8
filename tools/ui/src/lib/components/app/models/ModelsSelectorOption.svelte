@@ -12,8 +12,8 @@
 	} from '@lucide/svelte';
 	import { ActionIcon, ModelId } from '$lib/components/app';
 	import { ICON_CLASS_DEFAULT } from '$lib/constants';
-	import { t } from '$lib/i18n';
 	import { ServerModelStatus } from '$lib/enums';
+	import { t } from '$lib/i18n';
 	import { modelsStore } from '$lib/stores';
 	import type { ModelOption } from '$lib/types/models';
 	import { modelLoadFraction, modelLoadProgressText } from '$lib/utils';

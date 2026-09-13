@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { t } from '$lib/i18n';
 	import type { UseProcessingStateReturn } from '$lib/hooks/use-processing-state.svelte';
+	import { t } from '$lib/i18n';
 	import { fade } from 'svelte/transition';
 
 	interface Props {
