@@ -3,6 +3,7 @@
 	import ToolCallBlock from './ToolCallBlock.svelte';
 	import { SyntaxHighlightedCode } from '$lib/components/app';
 	import { CODE_BLOCK, MAX_HEIGHT_CODE_BLOCK } from '$lib/constants';
+	import { t } from '$lib/i18n';
 	import type { AgenticSection } from '$lib/types';
 
 	interface Props {
@@ -19,13 +20,16 @@
 
 <ToolCallBlock {isStreaming} meta={readFileMeta} {onToggle} {open} {section}>
 	{#snippet titleSnippet()}
-		<span class="text-muted-foreground">Read file </span>
+		<span class="text-muted-foreground">{t('Read file')} </span>
 
 		<span class="font-mono">{readFileMeta?.fileName}</span>
 
 		{#if readFileMeta?.lineRange}
 			<span class="text-muted-foreground"
-				>&nbsp;(lines {readFileMeta.lineRange.start}-{readFileMeta.lineRange.end})</span
+				>{t('(lines {start}-{end})', {
+					end: readFileMeta.lineRange.end,
+					start: readFileMeta.lineRange.start
+				})}</span
 			>
 		{/if}
 	{/snippet}
@@ -39,7 +43,7 @@
 			/>
 		{:else}
 			<div class="rounded bg-muted/20 p-2 text-xs text-muted-foreground/70 italic">
-				Waiting for file content...
+				{t('Waiting for file content...')}
 			</div>
 		{/if}
 	{/snippet}

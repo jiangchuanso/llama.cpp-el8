@@ -5,6 +5,7 @@
 	import { SyntaxHighlightedCode } from '$lib/components/app';
 	import { MAX_HEIGHT_CODE_BLOCK } from '$lib/constants';
 	import { FileTypeText } from '$lib/enums';
+	import { t } from '$lib/i18n';
 	import type { AgenticSection } from '$lib/types';
 	import { getToolUi } from '$lib/utils';
 
@@ -24,7 +25,9 @@
 <ToolCallBlock {isStreaming} meta={runJsMeta} {onToggle} {open} {section} {title}>
 	{#snippet children(meta, ctx)}
 		{#if ctx.isPending}
-			<div class="rounded bg-muted/20 p-2 text-xs text-muted-foreground/70 italic">Running...</div>
+			<div class="rounded bg-muted/20 p-2 text-xs text-muted-foreground/70 italic">
+				{t('Running...')}
+			</div>
 		{:else if meta?.errorMessage}
 			<div
 				class="flex items-start gap-2 rounded bg-red-500/10 p-2 text-xs text-red-600 italic dark:text-red-400"

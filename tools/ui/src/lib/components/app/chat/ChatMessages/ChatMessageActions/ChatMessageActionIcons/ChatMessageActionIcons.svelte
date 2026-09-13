@@ -115,7 +115,7 @@
 </div>
 
 <DialogConfirmation
-	cancelText="Cancel"
+	cancelText={t('Cancel')}
 	confirmText={messageActions.deletionInfo && messageActions.deletionInfo.totalCount > 1
 		? t('Delete {count} messages', { count: messageActions.deletionInfo.totalCount })
 		: t('Delete')}
@@ -133,19 +133,19 @@
 	onCancel={() => messageActions.setShowDeleteDialog(false)}
 	onConfirm={handleConfirmDelete}
 	open={messageActions.showDeleteDialog}
-	title="Delete Message"
+	title={t('Delete Message')}
 	variant="destructive"
 />
 
 <DialogConfirmation
 	bind:open={showForkDialog}
-	cancelText="Cancel"
-	confirmText="Fork"
-	description="Create a new conversation branching from this message."
+	cancelText={t('Cancel')}
+	confirmText={t('Fork')}
+	description={t('Create a new conversation branching from this message.')}
 	icon={GitBranch}
 	onCancel={() => (showForkDialog = false)}
 	onConfirm={handleConfirmFork}
-	title="Fork Conversation"
+	title={t('Fork Conversation')}
 >
 	<div class="flex flex-col gap-4 py-2">
 		<div class="flex flex-col gap-2">

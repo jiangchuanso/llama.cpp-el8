@@ -9,6 +9,7 @@
 	import { useDebouncedSearch } from '$lib/hooks/use-debounced-search.svelte';
 	import { usePickerNavigation } from '$lib/hooks/use-picker-navigation.svelte';
 	import { useScrollActiveRow } from '$lib/hooks/use-scroll-active-row.svelte';
+	import { t } from '$lib/i18n';
 	import { ToolsService } from '$lib/services/tools.service';
 	import { conversationsStore, toolsStore } from '$lib/stores';
 	import type { GlobEntry } from '$lib/types';
@@ -349,7 +350,7 @@
 		class="pointer-events-none absolute inset-0 opacity-0"
 		tabindex={-1}
 	>
-		<span class="sr-only">Open working directory picker</span>
+		<span class="sr-only">{t('Open working directory picker')}</span>
 	</Popover.Trigger>
 
 	<Popover.Content
@@ -369,11 +370,11 @@
 				bind:value={query}
 				class="w-full"
 				onClose={closePicker}
-				placeholder="Choose working directory"
+				placeholder={t('Choose working directory')}
 			/>
 
 			{#if !fileSearchEnabled}
-				<div class="px-2 py-1.5 text-sm text-muted-foreground">{searchUnavailableMessage}</div>
+				<div class="px-2 py-1.5 text-sm text-muted-foreground">{t(searchUnavailableMessage)}</div>
 			{:else if query.trim() && (search.isSearching || queryResults.length > 0 || searchError)}
 				<ChatFormCurrentWorkingDirectoryResultsList
 					bind:container={listContainer}

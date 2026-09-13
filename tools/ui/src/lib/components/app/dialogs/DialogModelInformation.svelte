@@ -274,7 +274,7 @@
 								<span class="min-w-0 flex-1 break-all font-mono text-xs">{modelName}</span>
 
 								<ActionIconCopyToClipboard
-									ariaLabel="Copy model name to clipboard"
+									ariaLabel={t('Copy model name to clipboard')}
 									canCopy={!!modelName}
 									text={modelName || ''}
 								/>
@@ -290,7 +290,7 @@
 								>
 
 								<ActionIconCopyToClipboard
-									ariaLabel="Copy model path to clipboard"
+									ariaLabel={t('Copy model path to clipboard')}
 									text={serverProps.model_path}
 								/>
 							</div>

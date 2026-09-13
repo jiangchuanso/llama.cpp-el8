@@ -147,12 +147,12 @@
 
 <DialogConfirmation
 	bind:open={showDiscardDialog}
-	cancelText="Keep editing"
-	confirmText="Discard"
-	description="You have unsaved changes. Are you sure you want to discard them?"
+	cancelText={t('Keep editing')}
+	confirmText={t('Discard')}
+	description={t('You have unsaved changes. Are you sure you want to discard them?')}
 	icon={AlertTriangle}
 	onCancel={() => (showDiscardDialog = false)}
 	onConfirm={editCtx.cancel}
-	title="Discard changes?"
+	title={t('Discard changes?')}
 	variant="destructive"
 />

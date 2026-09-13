@@ -3,6 +3,7 @@
 	import ToolCallBlock from './ToolCallBlock.svelte';
 	import { ATTACHMENT_SAVED_REGEX } from '$lib/constants/agentic.constants';
 	import { AttachmentType, MimeTypeAudio } from '$lib/enums';
+	import { t } from '$lib/i18n';
 	import type { DatabaseMessageExtraAudioFile, DatabaseMessageExtraImageFile } from '$lib/types';
 	import type { AgenticSection } from '$lib/types';
 	import { createBase64DataUrl } from '$lib/utils/data-url';
@@ -45,7 +46,7 @@
 
 <ToolCallBlock {isStreaming} meta={readMediaMeta} {onToggle} {open} {section}>
 	{#snippet titleSnippet()}
-		<span class="text-muted-foreground">Read media </span>
+		<span class="text-muted-foreground">{t('Read media')} </span>
 
 		<span class="font-mono">{readMediaMeta?.fileName}</span>
 	{/snippet}
@@ -54,7 +55,7 @@
 		{#if section.toolResult}
 			{#if !mediaAttachment}
 				<div class="rounded bg-muted/20 p-2 text-xs text-muted-foreground/70 italic">
-					Media attachment not found in message extras
+					{t('Media attachment not found in message extras')}
 				</div>
 			{:else if mediaAttachment.type === AttachmentType.AUDIO}
 				<div class="mt-2">
@@ -63,7 +64,7 @@
 							src={createBase64DataUrl(audioMimeType, mediaAttachment.base64Data)}
 							type={audioMimeType}
 						/>
-						Your browser does not support the audio element.
+						{t('Your browser does not support the audio element.')}
 					</audio>
 				</div>
 			{:else}
@@ -80,11 +81,11 @@
 			{#if readMediaMeta?.sizeBytes || readMediaMeta?.mimeType}
 				<div class="mt-2 flex gap-4 text-xs text-muted-foreground">
 					{#if readMediaMeta?.sizeBytes}
-						<span>Size: {readMediaMeta.sizeBytes} bytes</span>
+						<span>{t('Size: {value} bytes', { value: readMediaMeta.sizeBytes })}</span>
 					{/if}
 
 					{#if readMediaMeta?.mimeType}
-						<span>MIME: {readMediaMeta.mimeType}</span>
+						<span>{t('MIME: {type}', { type: readMediaMeta.mimeType })}</span>
 					{/if}
 				</div>
 			{/if}
@@ -94,7 +95,7 @@
 			{/if}
 		{:else}
 			<div class="rounded bg-muted/20 p-2 text-xs text-muted-foreground/70 italic">
-				Waiting for media data...
+				{t('Waiting for media data...')}
 			</div>
 		{/if}
 	{/snippet}

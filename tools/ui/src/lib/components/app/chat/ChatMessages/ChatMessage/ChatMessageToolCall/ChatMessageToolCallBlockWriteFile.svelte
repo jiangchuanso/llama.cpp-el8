@@ -4,6 +4,7 @@
 	import { XCircle } from '@lucide/svelte';
 	import { SyntaxHighlightedCode } from '$lib/components/app';
 	import { MAX_HEIGHT_CODE_BLOCK, RESULT_STAT_SEPARATOR } from '$lib/constants';
+	import { t } from '$lib/i18n';
 	import { toolsStore } from '$lib/stores';
 	import type { AgenticSection } from '$lib/types';
 	import { abbreviateHome } from '$lib/utils';
@@ -27,14 +28,14 @@
 
 <ToolCallBlock {isStreaming} meta={writeFileMeta} {onToggle} {open} {section}>
 	{#snippet titleSnippet()}
-		<span class="text-muted-foreground">Write file </span>
+		<span class="text-muted-foreground">{t('Write file')} </span>
 
 		<span class="font-mono" title={writeFileMeta?.filePath}
 			>{abbreviateHome(writeFileMeta?.filePath ?? '', home)}</span
 		>
 
 		{#if writeFileMeta?.errorMessage}
-			<span class="ml-1 text-xs italic text-muted-foreground/70">(failed)</span>
+			<span class="ml-1 text-xs italic text-muted-foreground/70">{t('(failed)')}</span>
 		{/if}
 	{/snippet}
 
@@ -61,7 +62,7 @@
 
 				{#if meta.bytesWritten != null}
 					<span class="font-mono">{meta.bytesWritten}</span>
-					bytes
+					{t('bytes')}
 				{/if}
 			</div>
 		{/if}

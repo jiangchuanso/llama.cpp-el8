@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { t } from '$lib/i18n';
 	import type { UseProcessingStateReturn } from '$lib/hooks/use-processing-state.svelte';
 	import { fade } from 'svelte/transition';
 
@@ -19,7 +20,7 @@
 			{modelLoadingText ??
 				processingState.getPromptProgressText() ??
 				processingState.getProcessingMessage() ??
-				'Processing...'}
+				t('Processing...')}
 		</span>
 	</div>
 </div>

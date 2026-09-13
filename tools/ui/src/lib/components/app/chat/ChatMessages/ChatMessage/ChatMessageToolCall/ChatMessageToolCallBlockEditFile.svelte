@@ -3,6 +3,7 @@
 	import ToolCallBlock from './ToolCallBlock.svelte';
 	import { XCircle } from '@lucide/svelte';
 	import { MAX_HEIGHT_CODE_BLOCK, RESULT_STAT_SEPARATOR } from '$lib/constants';
+	import { t } from '$lib/i18n';
 	import { toolsStore } from '$lib/stores';
 	import type { AgenticSection } from '$lib/types';
 	import { abbreviateHome, computeLineDiff, prefixFor } from '$lib/utils';
@@ -29,14 +30,14 @@
 
 <ToolCallBlock {isStreaming} meta={editFileMeta} {onToggle} {open} {section}>
 	{#snippet titleSnippet()}
-		<span class="text-muted-foreground">Edit file </span>
+		<span class="text-muted-foreground">{t('Edit file')} </span>
 
 		<span class="font-mono" title={editFileMeta?.filePath}
 			>{abbreviateHome(editFileMeta?.filePath ?? '', home)}</span
 		>
 
 		{#if editFileMeta?.errorMessage}
-			<span class="ml-1 text-xs italic text-muted-foreground/70">(failed)</span>
+			<span class="ml-1 text-xs italic text-muted-foreground/70">{t('(failed)')}</span>
 		{/if}
 	{/snippet}
 
@@ -53,7 +54,10 @@
 			{#each editDiffs as diffLines, ei (ei)}
 				<div class={ei === 0 ? '' : 'mt-3'}>
 					<div class="mb-1.5 text-xs text-muted-foreground/70 italic">
-						Edit {ei + 1}&nbsp;of&nbsp;{editFileBody.edits.length}
+						{t('Edit {index} of {total}', {
+							index: ei + 1,
+							total: editFileBody.edits.length
+						})}
 					</div>
 
 					<div style:max-height={MAX_HEIGHT_CODE_BLOCK} class="diff-block">
@@ -80,11 +84,13 @@
 
 				{#if meta.editsApplied != null}
 					<span class="font-mono">{meta.editsApplied}</span>
-					{meta.editsApplied === 1 ? 'edit' : 'edits'}&nbsp;applied
+					{t('{count} edits applied', { count: meta.editsApplied })}
 				{/if}
 			</div>
 		{:else}
-			<div class="rounded bg-muted/20 p-2 text-xs text-muted-foreground/70 italic">No edits</div>
+			<div class="rounded bg-muted/20 p-2 text-xs text-muted-foreground/70 italic">
+				{t('No edits')}
+			</div>
 		{/if}
 	{/snippet}
 </ToolCallBlock>

@@ -5,6 +5,7 @@
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { DEFAULT_RESOURCE_FILENAME, MIME_TYPE_SUBSTRINGS } from '$lib/constants';
 	import { MimeTypeText } from '$lib/enums';
+	import { t } from '$lib/i18n';
 	import { mcpStore } from '$lib/stores';
 	import type { DatabaseMessageExtraMcpResource } from '$lib/types';
 	import {
@@ -85,7 +86,7 @@
 
 		<div class="flex items-center justify-end gap-1">
 			<ActionIconCopyToClipboard
-				ariaLabel="Copy content"
+				ariaLabel={t('Copy content')}
 				canCopy={!!extra.content}
 				text={extra.content}
 			/>
@@ -95,7 +96,7 @@
 				disabled={!extra.content}
 				onclick={handleDownload}
 				size="sm"
-				title="Download content"
+				title={t('Download content')}
 				variant="ghost"
 			>
 				<Download class="h-3.5 w-3.5" />
