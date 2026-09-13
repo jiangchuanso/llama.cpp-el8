@@ -60,10 +60,10 @@
 
 			showSettingsExportSummary = true;
 			showSettingsImportSummary = false;
-			toast.success('Settings exported');
+			toast.success(t('Settings exported'));
 		} catch (err) {
 			console.error('Failed to export settings:', err);
-			toast.error('Failed to export settings');
+			toast.error(t('Failed to export settings'));
 		}
 	}
 
@@ -88,7 +88,7 @@
 					const data = JSON.parse(text);
 
 					if (!data || typeof data !== 'object' || !data.config) {
-						toast.error('Invalid settings file: missing config');
+						toast.error(t('Invalid settings file: missing config'));
 
 						return;
 					}
@@ -97,17 +97,17 @@
 
 					showSettingsImportSummary = true;
 					showSettingsExportSummary = false;
-					toast.success('Settings imported successfully');
+					toast.success(t('Settings imported successfully'));
 				} catch (err) {
 					console.error('Failed to import settings:', err);
-					toast.error('Failed to import settings');
+					toast.error(t('Failed to import settings'));
 				}
 			};
 
 			input.click();
 		} catch (err) {
 			console.error('Failed to open file picker:', err);
-			toast.error('Failed to open file picker');
+			toast.error(t('Failed to open file picker'));
 		}
 	}
 
@@ -116,7 +116,7 @@
 			const allConversations = conversationsStore.conversations;
 
 			if (allConversations.length === 0) {
-				toast.info('No conversations to export');
+				toast.info(t('No conversations to export'));
 
 				return;
 			}
@@ -134,7 +134,7 @@
 			showExportDialog = true;
 		} catch (err) {
 			console.error('Failed to load conversations:', err);
-			alert('Failed to load conversations');
+			alert(t('Failed to load conversations'));
 		}
 	}
 
@@ -156,7 +156,7 @@
 			showExportDialog = false;
 		} catch (err) {
 			console.error('Export failed:', err);
-			alert('Failed to export conversations');
+			alert(t('Failed to export conversations'));
 		}
 	}
 
@@ -189,14 +189,14 @@
 					const message = err instanceof Error ? err.message : 'Unknown error';
 
 					console.error('Failed to parse file:', err);
-					alert(`Failed to parse file: ${message}`);
+					alert(t('Failed to parse file: {message}', { message }));
 				}
 			};
 
 			input.click();
 		} catch (err) {
 			console.error('Import failed:', err);
-			alert('Failed to import conversations');
+			alert(t('Failed to import conversations'));
 		}
 	}
 
@@ -212,7 +212,9 @@
 			// lists what was written and the toast accounts for the rest.
 			if (skipped.length > 0) {
 				toast.info(
-					`Skipped ${skipped.length} conversation${skipped.length === 1 ? '' : 's'} already in your library`
+					t('Skipped {count} conversations already in your library', {
+						count: skipped.length
+					})
 				);
 			}
 
@@ -222,7 +224,7 @@
 			showImportDialog = false;
 		} catch (err) {
 			console.error('Import failed:', err);
-			alert('Failed to import conversations. Please check the file format.');
+			alert(t('Failed to import conversations. Please check the file format.'));
 		}
 	}
 
@@ -231,7 +233,7 @@
 			const allConversations = conversationsStore.conversations;
 
 			if (allConversations.length === 0) {
-				toast.info('No conversations to delete');
+				toast.info(t('No conversations to delete'));
 
 				return;
 			}
@@ -239,7 +241,7 @@
 			showDeleteDialog = true;
 		} catch (err) {
 			console.error('Failed to load conversations for deletion:', err);
-			toast.error('Failed to load conversations');
+			toast.error(t('Failed to load conversations'));
 		}
 	}
 

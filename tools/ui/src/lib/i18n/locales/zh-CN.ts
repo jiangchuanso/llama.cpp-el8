@@ -832,5 +832,45 @@ export const ZH_CN: Record<string, string> = {
 	'A new version is available. Reload to update.': '有新版本可用，重新加载以更新。',
 	Reload: '重新加载',
 	'Connecting to Server': '正在连接服务器',
-	'Initializing connection to server...': '正在初始化与服务器的连接…'
+	'Initializing connection to server...': '正在初始化与服务器的连接…',
+
+	// ── Toasts & alerts raised from script logic ─────────────────────────────
+	'Conversation deleted': '对话已删除',
+	'{count} conversations deleted': '已删除 {count} 个对话',
+	'Conversation exported': '对话已导出',
+	'{count} conversations exported': '已导出 {count} 个对话',
+	'Conversation pin toggled': '已切换对话置顶状态',
+	'Updated pin state for {count} conversations': '已更新 {count} 个对话的置顶状态',
+	'Conversation forked': '已创建对话分支',
+	'All conversations deleted': '已删除全部对话',
+	'No conversations to export': '没有可导出的对话',
+	'No conversations to delete': '没有可删除的对话',
+	'Failed to delete conversations': '删除对话失败',
+	'Failed to export conversations': '导出对话失败',
+	'Failed to update pin state': '更新置顶状态失败',
+	'Failed to fork conversation': '创建对话分支失败',
+	'Failed to load conversations': '加载对话失败',
+	'Settings exported': '设置已导出',
+	'Settings imported successfully': '设置已导入',
+	'Failed to export settings': '导出设置失败',
+	'Failed to import settings': '导入设置失败',
+	'Invalid settings file: missing config': '设置文件无效：缺少 config 字段',
+	'Failed to open file picker': '无法打开文件选择器',
+	'Failed to parse file: {message}': '解析文件失败：{message}',
+	'Failed to import conversations': '导入对话失败',
+	'Failed to import conversations. Please check the file format.': '导入对话失败，请检查文件格式。',
+	'Skipped {count} conversations already in your library':
+		'已跳过 {count} 个已存在于对话库中的对话',
+	'Copied to clipboard': '已复制到剪贴板',
+	'Failed to copy to clipboard': '复制到剪贴板失败',
+	'Code copied to clipboard': '代码已复制到剪贴板',
+	'Failed to copy code': '复制代码失败',
+	'You can enable parsing PDF as images with vision models.': '视觉模型可以启用“将 PDF 解析为图像”。',
+	'Enable PDF as Images': '启用 PDF 转图像',
+	'PDF parsing as images enabled!': '已启用 PDF 按图像解析！',
+	'PDF setting changed: Non-vision model detected, PDFs will be processed as text instead of images.':
+		'PDF 设置已变更：检测到非视觉模型，PDF 将按文本而非图像处理。',
+	'PDF "{name}" processed as {count} images for vision model.':
+		'PDF“{name}”已按 {count} 张图像处理（视觉模型）。',
+	'PDF "{name}" processed as text content.': 'PDF“{name}”已按文本内容处理。'
 };
