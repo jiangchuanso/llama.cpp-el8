@@ -205,6 +205,13 @@ jobs:
         id: llama2c_test
         run: |
           cd build
+          # examples/convert-llama2c-to-ggml is only added when GGML_BACKEND_DL is off
+          # (it uses the backends directly), so this smoke test does not apply to the
+          # dynamic-backend build used here for the ISA variants
+          if [ ! -x ./bin/llama-convert-llama2c-to-ggml ]; then
+            echo "skipped: llama-convert-llama2c-to-ggml is not built with GGML_BACKEND_DL=ON"
+            exit 0
+          fi
           echo "Fetch tokenizer"
           wget https://huggingface.co/karpathy/tinyllamas/resolve/main/stories260K/tok512.bin
           echo "Fetch llama2c model"
