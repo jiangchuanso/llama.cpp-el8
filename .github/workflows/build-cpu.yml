@@ -95,7 +95,7 @@ jobs:
         run: |
           # gcc 14: the arm64 backend variants need the newer -march strings
           dnf -y install --setopt=install_weak_deps=False \
-            git git-lfs wget which tar jq findutils \
+            git git-lfs wget which tar jq \
             gcc-toolset-14 \
             make cmake \
             openssl-devel libjpeg-turbo-devel \
@@ -139,22 +139,19 @@ jobs:
             -DLLAMA_USE_PREBUILT_UI=OFF \
             -DCMAKE_BUILD_RPATH='$ORIGIN'
           time cmake --build build --config Release -j $(nproc)
-          # gcc-toolset-14 links against a newer libstdc++/libgomp than EL8 ships,
-          # so bundle them next to the binaries to keep the artifacts runnable
-          # on a plain EL8 or any other glibc 2.28 system with older libstdc++
-          # (the SCL dir layout varies by toolset release, so search for them)
-          need=$(strings -a build/bin/* 2>/dev/null | grep -oE 'GLIBCXX_[0-9]+\.[0-9]+\.[0-9]+' | sort -uV | tail -1)
-          stdcxx_lib="$(find /opt/rh -name 'libstdc++.so.6' -print -quit)"
-          gomp_lib="$(find /opt/rh -name 'libgomp.so.1' -print -quit)"
-          case "$stdcxx_lib" in /opt/rh/*) ;; *) echo "error: libstdc++ not found under /opt/rh: '$stdcxx_lib'"; exit 1 ;; esac
-          case "$gomp_lib"   in /opt/rh/*) ;; *) echo "error: libgomp not found under /opt/rh: '$gomp_lib'"; exit 1 ;; esac
-          echo "bundling ${stdcxx_lib} and ${gomp_lib}"
-          cp -aL "${stdcxx_lib%/*}"/libstdc++.so.6* "${gomp_lib%/*}"/libgomp.so.1* build/bin/
-          # the bundle must be at least as new as what the binaries ask for
-          have=$(strings -a build/bin/libstdc++.so.6 | grep -oE 'GLIBCXX_[0-9]+\.[0-9]+\.[0-9]+' | sort -uV | tail -1)
-          if [ "$(printf '%s\n%s\n' "$need" "$have" | sort -V | tail -1)" != "$have" ]; then
-            echo "error: bundled libstdc++ provides $have, binaries need $need"; exit 1
-          fi
+          # the toolset ships no loadable libstdc++.so.6, so the binaries always
+          # resolve the system one; ship EL8's copy so that systems with an older
+          # libstdc++ (Kylin V10 has GCC 7.3, i.e. GLIBCXX_3.4.24) can run them
+          need=$(strings -a build/bin/* 2>/dev/null | grep -oE 'GLIBCXX_[0-9.]+|CXXABI_[0-9.]+|GOMP_[0-9.]+' | sort -uV)
+          cp -aL /usr/lib64/libstdc++.so.6* /usr/lib64/libgomp.so.1* build/bin/
+          # what we ship must be at least as new as what the binaries ask for
+          for sym in GLIBCXX_ CXXABI_ GOMP_; do
+            n=$(echo "$need" | grep -oE "${sym}[0-9.]+" | sort -uV | tail -1)
+            h=$(strings -a build/bin/libstdc++.so.6 build/bin/libgomp.so.1 2>/dev/null | grep -oE "${sym}[0-9.]+" | sort -uV | tail -1)
+            if [ -n "$n" ] && [ "$(printf '%s\n%s\n' "$n" "$h" | sort -V | tail -1)" != "$h" ]; then
+              echo "error: bundled runtimes provide $h but binaries need $n"; exit 1
+            fi
+          done
           # the binaries must resolve these from the bundle, not from the system
           ldd build/bin/llama-server | grep libstdc++
           ldd build/bin/llama-server | grep -q "build/bin/libstdc++.so.6" || { echo "error: llama-server uses the system libstdc++"; exit 1; }
@@ -169,13 +166,12 @@ jobs:
           fail=0
           for f in build/bin/*; do
             [ -f "$f" ] || continue
+            # the bundled distro runtimes are EL8's own, their baseline is EL8's
+            case "${f##*/}" in libstdc++.so.6*|libgomp.so.1*) continue ;; esac
             [ "$(head -c 4 "$f" | od -An -tx1 | tr -d ' \n')" = "7f454c46" ] || continue
             dynsyms=$(objdump -T "$f" 2>/dev/null)
             if echo "$dynsyms" | grep -q GLIBC_PRIVATE; then
               echo "error: $f references GLIBC_PRIVATE"; fail=1
-            fi
-            if echo "$dynsyms" | grep -qE 'GLIBCXX_|CXXABI_'; then
-              echo "error: $f needs a dynamic libstdc++"; fail=1
             fi
             vers=$(echo "$dynsyms" | grep -oE 'GLIBC_2\.[0-9]+' | sort -uV)
             [ -n "$vers" ] || continue
