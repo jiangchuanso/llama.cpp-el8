@@ -95,7 +95,7 @@ jobs:
         run: |
           # gcc 14: the arm64 backend variants need the newer -march strings
           dnf -y install --setopt=install_weak_deps=False \
-            git git-lfs wget which tar jq \
+            git git-lfs wget which tar jq findutils \
             gcc-toolset-14 \
             make cmake \
             openssl-devel libjpeg-turbo-devel \
@@ -142,10 +142,19 @@ jobs:
           # gcc-toolset-14 links against a newer libstdc++/libgomp than EL8 ships,
           # so bundle them next to the binaries to keep the artifacts runnable
           # on a plain EL8 or any other glibc 2.28 system with older libstdc++
-          # (the runtimes live in the SCL runtime dir, not in the GCC libdir)
-          cp -a /opt/rh/gcc-toolset-14/root/usr/lib64/libstdc++.so.6* \
-                /opt/rh/gcc-toolset-14/root/usr/lib64/libgomp.so.1 \
-                build/bin/
+          # (the SCL dir layout varies by toolset release, so search for them)
+          need=$(strings -a build/bin/* 2>/dev/null | grep -oE 'GLIBCXX_[0-9]+\.[0-9]+\.[0-9]+' | sort -uV | tail -1)
+          stdcxx_lib="$(find /opt/rh -name 'libstdc++.so.6' -print -quit)"
+          gomp_lib="$(find /opt/rh -name 'libgomp.so.1' -print -quit)"
+          case "$stdcxx_lib" in /opt/rh/*) ;; *) echo "error: libstdc++ not found under /opt/rh: '$stdcxx_lib'"; exit 1 ;; esac
+          case "$gomp_lib"   in /opt/rh/*) ;; *) echo "error: libgomp not found under /opt/rh: '$gomp_lib'"; exit 1 ;; esac
+          echo "bundling ${stdcxx_lib} and ${gomp_lib}"
+          cp -aL "${stdcxx_lib%/*}"/libstdc++.so.6* "${gomp_lib%/*}"/libgomp.so.1* build/bin/
+          # the bundle must be at least as new as what the binaries ask for
+          have=$(strings -a build/bin/libstdc++.so.6 | grep -oE 'GLIBCXX_[0-9]+\.[0-9]+\.[0-9]+' | sort -uV | tail -1)
+          if [ "$(printf '%s\n%s\n' "$need" "$have" | sort -V | tail -1)" != "$have" ]; then
+            echo "error: bundled libstdc++ provides $have, binaries need $need"; exit 1
+          fi
           # the binaries must resolve these from the bundle, not from the system
           ldd build/bin/llama-server | grep libstdc++
           ldd build/bin/llama-server | grep -q "build/bin/libstdc++.so.6" || { echo "error: llama-server uses the system libstdc++"; exit 1; }
