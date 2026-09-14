@@ -116,11 +116,21 @@ jobs:
       - name: Build
         id: cmake_build
         run: |
+          # $ORIGIN: prefer the gcc-toolset runtimes bundled below over the system ones
           cmake -B build \
             -DGGML_NATIVE=OFF \
             -DLLAMA_FATAL_WARNINGS=ON \
-            -DGGML_RPC=ON
+            -DGGML_RPC=ON \
+            -DCMAKE_BUILD_RPATH='$ORIGIN'
           time cmake --build build --config Release -j $(nproc)
+          # gcc-toolset-13 links against a newer libstdc++/libgomp than EL8 ships,
+          # so bundle them next to the binaries to keep the artifacts runnable
+          # on a plain EL8 or any other glibc 2.28 system with older libstdc++
+          runtime_lib="$(dirname "$(readlink -f "$(g++ -print-file-name=libstdc++.so)")")"
+          cp -a "$runtime_lib"/libstdc++.so.6* "$runtime_lib"/libgomp.so.1 build/bin/
+          # the binaries must resolve these from the bundle, not from the system
+          ldd build/bin/llama-server | grep libstdc++
+          ldd build/bin/llama-server | grep -q "build/bin/libstdc++.so.6" || { echo "error: llama-server uses the system libstdc++"; exit 1; }
 
       - name: ccache-buckets-save
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
