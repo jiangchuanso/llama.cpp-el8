@@ -150,6 +150,33 @@ jobs:
           ldd build/bin/llama-server | grep libstdc++
           ldd build/bin/llama-server | grep -q "build/bin/libstdc++.so.6" || { echo "error: llama-server uses the system libstdc++"; exit 1; }
 
+      # The container is on the EL8 line, so every build stays on glibc 2.28.
+      # Guard it: the artifacts must also load on a stock EL8 or Kylin V10.
+      - name: Check glibc 2.28 baseline
+        id: glibc_check
+        run: |
+          ldd --version | head -1
+          max_ver=2.28
+          fail=0
+          for f in build/bin/*; do
+            [ -f "$f" ] || continue
+            [ "$(head -c 4 "$f" | od -An -tx1 | tr -d ' \n')" = "7f454c46" ] || continue
+            dynsyms=$(objdump -T "$f" 2>/dev/null)
+            if echo "$dynsyms" | grep -q GLIBC_PRIVATE; then
+              echo "error: $f references GLIBC_PRIVATE"; fail=1
+            fi
+            if echo "$dynsyms" | grep -qE 'GLIBCXX_|CXXABI_'; then
+              echo "error: $f needs a dynamic libstdc++"; fail=1
+            fi
+            vers=$(echo "$dynsyms" | grep -oE 'GLIBC_2\.[0-9]+' | sort -uV)
+            [ -n "$vers" ] || continue
+            if [ "$(printf '%s\nGLIBC_%s\n' "$vers" "$max_ver" | sort -V | tail -1)" != "GLIBC_$max_ver" ]; then
+              echo "error: $f needs $(echo "$vers" | tail -1), above glibc $max_ver"; fail=1
+            fi
+          done
+          [ "$fail" = 0 ] || exit 1
+          echo "all ELF files stay within glibc $max_ver"
+
       - name: ccache-buckets-save
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
         uses: ./.github/actions/ccache-buckets
