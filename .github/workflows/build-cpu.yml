@@ -148,6 +148,7 @@ jobs:
           for sym in GLIBCXX_ CXXABI_ GOMP_; do
             n=$(echo "$need" | grep -oE "${sym}[0-9.]+" | sort -uV | tail -1)
             h=$(strings -a build/bin/libstdc++.so.6 build/bin/libgomp.so.1 2>/dev/null | grep -oE "${sym}[0-9.]+" | sort -uV | tail -1)
+            echo "${sym} need='${n}' provided='${h}'"
             if [ -n "$n" ] && [ "$(printf '%s\n%s\n' "$n" "$h" | sort -V | tail -1)" != "$h" ]; then
               echo "error: bundled runtimes provide $h but binaries need $n"; exit 1
             fi
