@@ -26,7 +26,11 @@ sudo rpm -ivh llama-cpu-*.el8.*.rpm
 sudo rpm -Uvh llama-cpu-*.el8.*.rpm
 ```
 
-本 RPM 刻意不引入 `libstdc++` / `libgomp` 的依赖（见 `llama-cpu.spec`）。如果用 `dnf`
+本包**不写任何全局库路径**：运行库只放在 `/opt/llama-cpu/bin` 下，由同目录的二进制通过
+`$ORIGIN` rpath 加载，不写 `/usr/lib64`、不改 `/etc/ld.so.conf`、不需要 `LD_LIBRARY_PATH`。
+
+spec 里用 `AutoReqProv: no` 关闭了自动依赖扫描，因此包内既**不依赖**、也**不宣告**
+`libstdc++.so.6` / `libgomp.so.1`，只声明 `glibc >= 2.28` 与 `systemd`。如果用 `dnf`
 安装时报缺失运行库的错，那是打包 bug，请用 `rpm -qp --requires <file.rpm>` 把依赖列表
 反馈上来。
 

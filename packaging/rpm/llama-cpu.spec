@@ -10,17 +10,14 @@ Source0:        llama-server.service
 Source1:        llama-cpu.sysconfig
 Source2:        README.md
 
-# The binaries are prebuilt by the CI `ubuntu` job and dropped, unchanged, into
-# rpmbuild/SOURCES/bin. They carry libstdc++.so.6 and libgomp.so.1
-# (GLIBCXX_3.4.25) next to themselves and resolve them through an $ORIGIN rpath.
-# Auto-generated dependencies would emit "libstdc++.so.6(GLIBCXX_3.4.25)(64bit)",
-# which Kylin V10 (GLIBCXX_3.4.24) cannot satisfy, so dnf would refuse to
-# install the package. Filter exactly those two libraries, keep the rest.
-# The patterns below use no backslashes on purpose: rpm eats one level of them
-# while the macro body is parsed, so an escaped "+" or "." silently stops
-# matching. Bracket expressions say the same thing without any escaping.
-%global __requires_exclude ^(libstdc[+][+]so[.]6|libgomp[.]so[.]1)
-%global __provides_exclude ^(libstdc[+][+]so[.]6|libgomp[.]so[.]1)
+# The binaries come prebuilt from the CI `ubuntu` job (rpmbuild/SOURCES/bin).
+# They carry libstdc++.so.6 and libgomp.so.1 next to themselves and load them
+# through an $ORIGIN rpath, so the C++ runtime belongs to this package. Scanning
+# those files would add "libstdc++.so.6(GLIBCXX_3.4.25)(64bit)" to Requires and
+# to Provides: Kylin V10 has only GLIBCXX_3.4.24, and a private copy must not
+# claim that soname system-wide. Turn the scanner off, declare the real
+# dependencies by hand below.
+AutoReqProv:    no
 
 # binaries, archives and libraries are shipped exactly as built: do not strip
 %global __os_install_post %{nil}
