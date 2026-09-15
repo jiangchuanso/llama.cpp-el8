@@ -25,6 +25,12 @@ jobs:
     container: almalinux:8
 
     steps:
+      # almalinux:8 has no git. Without it actions/checkout falls back to a
+      # REST archive download (no .git dir) and the later `git rev-list`
+      # fails with exit 127. Install git before checkout.
+      - name: Install git
+        run: dnf -y install --setopt=install_weak_deps=False git
+
       - name: Clone
         uses: actions/checkout@v6
         with:
