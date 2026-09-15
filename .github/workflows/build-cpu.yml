@@ -52,6 +52,13 @@ jobs:
   ui-build:
     uses: ./.github/workflows/ui-build.yml
 
+  # Repackage the el8 binaries into RPMs. Lives in a fork-only workflow file so
+  # this one stays close to upstream, but runs inside the same workflow run so
+  # it can reuse the artifacts of the `ubuntu` job without recompiling.
+  rpm:
+    needs: ubuntu
+    uses: ./.github/workflows/build-rpm.yml
+
   ubuntu:
     needs: ui-build
     strategy:
@@ -432,7 +439,7 @@ jobs:
   # artifacts already uploaded by the build jobs (no rebuild).
   release:
     name: Publish to Release
-    needs: [build-cmake-pkg, ubuntu, windows]
+    needs: [build-cmake-pkg, ubuntu, windows, rpm]
     # Only on pushes to master (or manual dispatch), never on pull requests
     if: >-
       ${{
@@ -471,6 +478,8 @@ jobs:
               tar -czf "${d}.tar.gz" -C "$d" .
             fi
           done
+          # RPMs are single files already, publish them as-is
+          find . -mindepth 2 -name '*.rpm' -exec cp -v {} . \;
 
       - name: Publish CPU build to nightly release
         uses: softprops/action-gh-release@v2
@@ -479,4 +488,6 @@ jobs:
           name: CPU Nightly Build
           prerelease: true
           overwrite_files: true
-          files: artifacts/*.tar.gz
+          files: |
+            artifacts/*.tar.gz
+            artifacts/*.rpm

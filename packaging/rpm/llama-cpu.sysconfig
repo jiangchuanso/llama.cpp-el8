@@ -1,0 +1,10 @@
+# Command line arguments for llama-server.
+#
+# A model is required, add it here together with the host/port and any tuning
+# flags you need. Example:
+#
+#   LLAMA_SERVER_OPTS="--host 0.0.0.0 --port 8080 -m /var/lib/llama-cpu/models/model.gguf -c 4096 -t 8"
+#
+# Then:
+#   systemctl enable --now llama-server
+LLAMA_SERVER_OPTS="--host 0.0.0.0 --port 8080"

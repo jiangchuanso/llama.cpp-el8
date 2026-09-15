@@ -1,0 +1,23 @@
+[Unit]
+Description=llama.cpp inference server (llama-server)
+Documentation=https://github.com/jiangchuanso/llama.cpp-zh-el8
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=llama-cpu
+Group=llama-cpu
+WorkingDirectory=/var/lib/llama-cpu
+# override the arguments below in /etc/sysconfig/llama-cpu
+EnvironmentFile=-/etc/sysconfig/llama-cpu
+# ${...} expands to separate words, so LLAMA_SERVER_OPTS may hold several flags
+ExecStart=/opt/llama-cpu/bin/llama-server ${LLAMA_SERVER_OPTS}
+Restart=on-failure
+RestartSec=3
+LimitNOFILE=65536
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
