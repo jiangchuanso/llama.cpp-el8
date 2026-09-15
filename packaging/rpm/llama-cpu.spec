@@ -11,13 +11,16 @@ Source1:        llama-cpu.sysconfig
 Source2:        README.md
 
 # The binaries are prebuilt by the CI `ubuntu` job and dropped, unchanged, into
-# %{_sourcedir}/bin. They carry libstdc++.so.6 and libgomp.so.1 (GLIBCXX_3.4.25)
-# next to themselves and resolve them through an $ORIGIN rpath. Auto-generated
-# dependencies would emit "libstdc++.so.6(GLIBCXX_3.4.25)(64bit)", which Kylin
-# V10 (GLIBCXX_3.4.24) cannot satisfy, so dnf would refuse to install the
-# package. Filter exactly those two libraries and keep the rest generated.
-%global __requires_exclude ^(libstdc\+\+\.so\.6|libgomp\.so\.1)
-%global __provides_exclude ^(libstdc\+\+\.so\.6|libgomp\.so\.1)
+# rpmbuild/SOURCES/bin. They carry libstdc++.so.6 and libgomp.so.1
+# (GLIBCXX_3.4.25) next to themselves and resolve them through an $ORIGIN rpath.
+# Auto-generated dependencies would emit "libstdc++.so.6(GLIBCXX_3.4.25)(64bit)",
+# which Kylin V10 (GLIBCXX_3.4.24) cannot satisfy, so dnf would refuse to
+# install the package. Filter exactly those two libraries, keep the rest.
+# The patterns below use no backslashes on purpose: rpm eats one level of them
+# while the macro body is parsed, so an escaped "+" or "." silently stops
+# matching. Bracket expressions say the same thing without any escaping.
+%global __requires_exclude ^(libstdc[+][+]so[.]6|libgomp[.]so[.]1)
+%global __provides_exclude ^(libstdc[+][+]so[.]6|libgomp[.]so[.]1)
 
 # binaries, archives and libraries are shipped exactly as built: do not strip
 %global __os_install_post %{nil}
