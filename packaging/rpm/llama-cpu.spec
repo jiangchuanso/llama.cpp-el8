@@ -8,6 +8,7 @@ License:        MIT
 URL:            https://github.com/jiangchuanso/llama.cpp-zh-el8
 Source0:        llama-server.service
 Source1:        llama-cpu.sysconfig
+Source2:        README.md
 
 # The binaries are prebuilt by the CI `ubuntu` job and dropped, unchanged, into
 # %{_sourcedir}/bin. They carry libstdc++.so.6 and libgomp.so.1 (GLIBCXX_3.4.25)
@@ -62,6 +63,9 @@ install -m 0644 %{SOURCE0} %{buildroot}%{_unitdir}/llama-server.service
 install -d %{buildroot}%{_sysconfdir}/sysconfig
 install -m 0644 %{SOURCE1} %{buildroot}%{_sysconfdir}/sysconfig/llama-cpu
 
+install -d %{buildroot}%{_docdir}/llama-cpu
+install -m 0644 %{SOURCE2} %{buildroot}%{_docdir}/llama-cpu/README.md
+
 install -d %{buildroot}/var/lib/llama-cpu
 
 %pre
@@ -85,4 +89,5 @@ exit 0
 %{_bindir}/llama-*
 %config(noreplace) %{_sysconfdir}/sysconfig/llama-cpu
 %{_unitdir}/llama-server.service
+%{_docdir}/llama-cpu/README.md
 %dir %attr(0750,llama-cpu,llama-cpu) /var/lib/llama-cpu

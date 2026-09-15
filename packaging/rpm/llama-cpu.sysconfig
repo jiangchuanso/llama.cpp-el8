@@ -1,10 +1,127 @@
-# Command line arguments for llama-server.
 #
-# A model is required, add it here together with the host/port and any tuning
-# flags you need. Example:
+# llama-server startup arguments
+# ==============================
 #
-#   LLAMA_SERVER_OPTS="--host 0.0.0.0 --port 8080 -m /var/lib/llama-cpu/models/model.gguf -c 4096 -t 8"
+# Full list of flags:
 #
-# Then:
-#   systemctl enable --now llama-server
+#     /opt/llama-cpu/bin/llama-server --help
+#
+# Only options that are worth setting explicitly are listed below. Options that
+# are ALREADY ON by default are deliberately omitted, do not set them:
+#     -cb/--cont-batching (continuous batching), --jinja (chat template),
+#     --warmup, --slots, --cache-prompt, --mmproj-auto, --webui, ...
+# Pass the matching --no-<opt> if you really need to turn one of them off.
+#
+# A model is MANDATORY (-m local file, or -hf to download from Hugging Face),
+# without one the server exits right after start.
+#
+# After editing:
+#
+#     systemctl restart llama-server
+#     systemctl status llama-server
+#     journalctl -u llama-server -f
+#
+# Directory for models, writable by the llama-cpu user:
+#     /var/lib/llama-cpu/models/
+#
+# NOTE: almost every option also has an environment variable form (LLAMA_ARG_*),
+# e.g. -c/--ctx-size <-> LLAMA_ARG_CTX_SIZE. Flags are used here because they are
+# easier to read and to keep in one place.
+#
+
+# ---------------------------------------------------------------------------
+# Default: listen on all interfaces, port 8080, CPU-only build.
+# Add your model below, e.g.:
+#   LLAMA_SERVER_OPTS="--host 0.0.0.0 --port 8080 -m /var/lib/llama-cpu/models/qwen3-8b-q4_k_m.gguf"
+# ---------------------------------------------------------------------------
 LLAMA_SERVER_OPTS="--host 0.0.0.0 --port 8080"
+
+# ---------------------------------------------------------------------------
+# Model (one of these is required)
+# ---------------------------------------------------------------------------
+# -m,   --model FNAME                 local .gguf file to load
+# -mu,  --model-url URL               download the model from a URL
+# -hf,  --hf-repo <user>/<model>[:quant]   pull from Hugging Face, e.g.
+#                                     -hf ggml-org/gemma-3-4b-it-GGUF:Q4_K_M
+# -hff, --hf-file FILE                exact file inside the HF repo
+# -a,   --alias STRING                model name reported by the API (comma-separated list allowed)
+#      --lora FNAME                   LoRA adapter(s), comma-separated
+#      --mmproj FILE                  multimodal projector for vision models
+#
+# ---------------------------------------------------------------------------
+# CPU / performance
+# ---------------------------------------------------------------------------
+# -t,   --threads N                   generation threads (default: physical cores)
+# -tb,  --threads-batch N             prompt-processing threads (default: same as --threads)
+# -b,   --batch-size N                logical batch, default 2048
+# -ub,  --ubatch-size N               physical batch, default 512
+#      --prio N                       process priority, low(-1) .. realtime(3), default 0
+# -C,   --cpu-mask M                  CPU affinity mask in hex
+# -Cr,  --cpu-range lo-hi             CPU affinity range
+#      --numa {distribute,isolate,numactl}
+# -lm,  --load-mode MODE              auto|none|mmap|mlock|mmap+mlock|dio
+#      --cpu-moe / -ncmoe N           keep MoE weights on CPU (hybrid setups)
+#
+# ---------------------------------------------------------------------------
+# Context and KV cache
+# ---------------------------------------------------------------------------
+# -c,   --ctx-size N                  context size, 0 = from model, default 4096
+# -n,   --predict N                   max tokens to predict, -1 = unlimited
+# -ctk, --cache-type-k TYPE           f32|f16|bf16|q8_0|q4_0|... (default f16)
+# -ctv, --cache-type-v TYPE           same values as -ctk
+#      --keep N                       tokens kept from the initial prompt
+# -fa,  --flash-attn [on|off|auto]    default auto
+# -np,  --parallel N                  server slots / concurrent requests, -1 = auto
+#      --cache-reuse N                reuse KV chunks >= N tokens when shifting
+#      --cache-ram N                  prompt cache limit in MiB (default 8192, -1 = unlimited)
+#      --ctx-checkpoints N            checkpoints per slot (default 32)
+#      --context-shift                shift context on infinite generation (default off)
+#
+# ---------------------------------------------------------------------------
+# Sampling defaults returned to clients
+# ---------------------------------------------------------------------------
+#      --temp N                       temperature, default 0.80
+#      --top-k N                      default 40, 0 = off
+#      --top-p N                      default 0.95, 1.0 = off
+#      --min-p N                      default 0.05, 0.0 = off
+#      --repeat-penalty N             default 1.00
+#      --seed N                       -1 = random
+#
+# ---------------------------------------------------------------------------
+# API / authentication / security
+# ---------------------------------------------------------------------------
+#      --api-key KEY                  require this key, comma-separated list allowed
+#      --api-key-file FNAME           read keys from a file (one per line)
+#      --ssl-key-file FNAME           enable HTTPS
+#      --ssl-cert-file FNAME
+#      --cors-origins ORIGINS         default '*', use 'localhost' to reflect only localhost
+#      --api-prefix PREFIX            serve under a path prefix
+#      --timeout N                    read/write timeout in seconds, default 3600
+#      --threads-http N               HTTP worker threads, -1 = auto
+#      --reuse-port                   allow several sockets on the same port
+#
+# SECURITY: --host 0.0.0.0 exposes the server to the whole network and the API
+# has NO authentication by default. On a shared/untrusted network set
+# --api-key (or --host 127.0.0.1 and put a reverse proxy in front).
+#
+# ---------------------------------------------------------------------------
+# Endpoints / logging
+# ---------------------------------------------------------------------------
+#      --metrics                      enable /metrics (Prometheus), default off
+#      --props                        allow POST /props to change properties, default off
+#      --embeddings                   embeddings-only mode, default off
+#      --rerank, --reranking          enable the reranking endpoint, default off
+#      --log-file FNAME               write a log file next to journald output
+#      --log-verbosity N              0 generic .. 5 debug, default 3
+# -v,  --verbose                      debug-level logging
+#      --offline                      never touch the network
+#
+# ---------------------------------------------------------------------------
+# Useful example (16-thread machine, 8k context, quantized KV cache, API key)
+# ---------------------------------------------------------------------------
+# LLAMA_SERVER_OPTS="--host 0.0.0.0 --port 8080 \
+#   -m /var/lib/llama-cpu/models/model.gguf \
+#   -c 8192 -t 16 -tb 16 -np 4 \
+#   -ctk q8_0 -ctv q8_0 -fa auto \
+#   --alias my-model --api-key change-me \
+#   --metrics --log-verbosity 3"

@@ -53,7 +53,10 @@ jobs:
           build_number=$(git rev-list --count HEAD)
           echo "packaging llama-cpu $version, build $build_number"
 
-          cp packaging/rpm/llama-server.service packaging/rpm/llama-cpu.sysconfig rpmbuild/SOURCES/
+          cp packaging/rpm/llama-server.service \
+             packaging/rpm/llama-cpu.sysconfig \
+             packaging/rpm/README.md \
+             rpmbuild/SOURCES/
           rpmbuild -bb packaging/rpm/llama-cpu.spec \
             --define "_topdir $(pwd)/rpmbuild" \
             --define "llama_version $version" \
