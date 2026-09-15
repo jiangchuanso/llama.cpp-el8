@@ -64,6 +64,7 @@ jobs:
 
           cp packaging/rpm/llama-server.service \
              packaging/rpm/llama-cpu.sysconfig \
+             packaging/rpm/llama-cpu-models.ini \
              packaging/rpm/README.md \
              rpmbuild/SOURCES/
           rpmbuild -bb packaging/rpm/llama-cpu.spec \

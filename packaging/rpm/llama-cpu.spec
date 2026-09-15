@@ -9,6 +9,7 @@ URL:            https://github.com/jiangchuanso/llama.cpp-zh-el8
 Source0:        llama-server.service
 Source1:        llama-cpu.sysconfig
 Source2:        README.md
+Source3:        llama-cpu-models.ini
 
 # The binaries come prebuilt from the CI `ubuntu` job (rpmbuild/SOURCES/bin).
 # They carry libstdc++.so.6 and libgomp.so.1 next to themselves and load them
@@ -34,9 +35,11 @@ The binaries and their runtime libraries (including libstdc++ and libgomp) are
 bundled under /opt/llama-cpu and loaded through an $ORIGIN rpath, so the package
 does not depend on the host C++ runtime version.
 
-A systemd unit (llama-server.service) is installed but not enabled, because a
-model path has to be configured first. Set the arguments in
-/etc/sysconfig/llama-cpu and run: systemctl enable --now llama-server
+A systemd unit (llama-server.service) is installed but not enabled. The default
+configuration runs llama-server in router mode: every .gguf found in
+/var/lib/llama-cpu/models is registered automatically and models are loaded on
+demand. Drop model files into that directory, optionally tune per-model
+settings in /etc/llama-cpu/models.ini, then run: systemctl enable --now llama-server
 
 %prep
 # nothing to unpack, the prebuilt binaries are used as-is
@@ -63,10 +66,14 @@ install -m 0644 %{SOURCE0} %{buildroot}%{_unitdir}/llama-server.service
 install -d %{buildroot}%{_sysconfdir}/sysconfig
 install -m 0644 %{SOURCE1} %{buildroot}%{_sysconfdir}/sysconfig/llama-cpu
 
+install -d %{buildroot}%{_sysconfdir}/llama-cpu
+install -m 0644 %{SOURCE3} %{buildroot}%{_sysconfdir}/llama-cpu/models.ini
+
 install -d %{buildroot}%{_docdir}/llama-cpu
 install -m 0644 %{SOURCE2} %{buildroot}%{_docdir}/llama-cpu/README.md
 
 install -d %{buildroot}/var/lib/llama-cpu
+install -d -m 0750 %{buildroot}/var/lib/llama-cpu/models
 
 %pre
 getent group llama-cpu >/dev/null || groupadd -r llama-cpu
@@ -88,6 +95,9 @@ exit 0
 /opt/llama-cpu/bin
 %{_bindir}/llama-*
 %config(noreplace) %{_sysconfdir}/sysconfig/llama-cpu
+%dir %{_sysconfdir}/llama-cpu
+%config(noreplace) %{_sysconfdir}/llama-cpu/models.ini
 %{_unitdir}/llama-server.service
 %{_docdir}/llama-cpu/README.md
 %dir %attr(0750,llama-cpu,llama-cpu) /var/lib/llama-cpu
+%dir %attr(0750,llama-cpu,llama-cpu) /var/lib/llama-cpu/models

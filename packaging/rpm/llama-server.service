@@ -5,8 +5,9 @@ Documentation=file:/usr/share/doc/llama-cpu/README.md
 After=network-online.target
 Wants=network-online.target
 
-# Give up restarting if the server keeps dying on startup (e.g. no model
-# configured yet) instead of looping forever.
+# Give up restarting if the server keeps dying on startup (e.g. a broken
+# --models-preset path) instead of looping forever. Router mode starts fine
+# with an empty models directory.
 StartLimitIntervalSec=60
 StartLimitBurst=5
 
