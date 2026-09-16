@@ -14,9 +14,8 @@
 | ---- | ------- |
 | `/opt/llama-cpu/bin/` | `llama-server`、`llama-cli`、`llama-bench`、`libllama*.so`、`libggml*.so`，以及随包带的 `libstdc++.so.6` / `libgomp.so.1` |
 | `/usr/bin/llama-*` | 指向 `/opt/llama-cpu/bin` 的软链接 |
-| `/etc/sysconfig/llama-cpu` | `LLAMA_SERVER_OPTS`，服务启动命令行 |
 | `/etc/llama-cpu/models.ini` | 路由模式的模型 preset（`--models-preset` 指向的文件，必须存在） |
-| `/usr/lib/systemd/system/llama-server.service` | systemd 单元文件 |
+| `/usr/lib/systemd/system/llama-server.service` | systemd 单元文件；启动参数内联在其 `ExecStart`（用 `systemctl edit llama-server` 覆盖） |
 | `/var/lib/llama-cpu/` | 服务家目录，可写（模型放在 `models/` 下） |
 
 ## 安装
@@ -40,19 +39,24 @@ spec 里用 `AutoReqProv: no` 关闭了自动依赖扫描，因此包内既**不
 ```sh
 sudo cp ~/model.gguf /var/lib/llama-cpu/models/
 sudo chown llama-cpu:llama-cpu /var/lib/llama-cpu/models/model.gguf
-sudoedit /etc/sysconfig/llama-cpu
+sudo systemctl edit llama-server   # 覆盖 ExecStart 里的启动参数
 ```
 
 服务默认以**路由模式**启动（`--models-dir` + `--models-preset`）：`models/` 目录下的每个
 `.gguf` 自动注册为一个模型，模型 id 就是文件名去掉 `.gguf` 后缀。请求通过 `"model"`
-字段选择模型，首次请求时按需加载，驻留数超过 `--models-max`（默认 4）时按 LRU 自动卸载：
+字段选择模型，首次请求时按需加载，驻留数超过 `--models-max`（默认 4）时按 LRU 自动卸载。
+
+启动参数已内联在 `llama-server.service` 的 `ExecStart` 里：
 
 ```sh
-LLAMA_SERVER_OPTS="--host 0.0.0.0 --port 8080 \
-  --models-dir /var/lib/llama-cpu/models \
-  --models-preset /etc/llama-cpu/models.ini \
-  --models-max 4"
+ExecStart=/opt/llama-cpu/bin/llama-server \
+    --host 0.0.0.0 --port 8080 \
+    --models-dir /var/lib/llama-cpu/models \
+    --models-preset /etc/llama-cpu/models.ini
 ```
+
+要改参数，最干净的方式是 `sudo systemctl edit llama-server` 生成 drop-in 覆盖
+`ExecStart`；也可以直接改 `/usr/lib/systemd/system/llama-server.service`。
 
 `--models-preset` 指向的文件**必须存在**，否则服务启动即失败；包内已自带
 `/etc/llama-cpu/models.ini`（`%config(noreplace)`，升级不会覆盖你的修改）。需要给某个
@@ -60,7 +64,7 @@ LLAMA_SERVER_OPTS="--host 0.0.0.0 --port 8080 \
 小节即可。模型目录为空也能启动，只是 `/v1/models` 列表为空。
 
 要退回**单模型模式**，把 `-m /var/lib/llama-cpu/models/model.gguf` 加回
-`LLAMA_SERVER_OPTS` 即可。
+`llama-server.service` 的 `ExecStart` 即可。
 
 完整参数请用 `/opt/llama-cpu/bin/llama-server --help` 查看。模板已覆盖：模型、CPU/线程、
 上下文与 KV 缓存类型、采样默认值、API 密钥、CORS、TLS、监控指标、embeddings/reranking、
@@ -115,6 +119,6 @@ Web UI 地址为 `http://<host>:8080/`（已内置中文界面）。不用的话
 ## 升级 / 卸载
 
 ```sh
-sudo rpm -Uvh llama-cpu-<new>.rpm   # /etc/sysconfig 下的配置保留（noreplace）
+sudo rpm -Uvh llama-cpu-<new>.rpm   # /etc/llama-cpu/models.ini 等配置保留（noreplace）
 sudo rpm -e llama-cpu               # 保留 /var/lib/llama-cpu 及其模型
 ```

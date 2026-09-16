@@ -7,7 +7,6 @@ Summary:        llama.cpp CPU inference server (EL8 / Kylin V10 build)
 License:        MIT
 URL:            https://github.com/jiangchuanso/llama.cpp-zh-el8
 Source0:        llama-server.service
-Source1:        llama-cpu.sysconfig
 Source2:        README.md
 Source3:        llama-cpu-models.ini
 
@@ -63,9 +62,6 @@ done
 install -d %{buildroot}%{_unitdir}
 install -m 0644 %{SOURCE0} %{buildroot}%{_unitdir}/llama-server.service
 
-install -d %{buildroot}%{_sysconfdir}/sysconfig
-install -m 0644 %{SOURCE1} %{buildroot}%{_sysconfdir}/sysconfig/llama-cpu
-
 install -d %{buildroot}%{_sysconfdir}/llama-cpu
 install -m 0644 %{SOURCE3} %{buildroot}%{_sysconfdir}/llama-cpu/models.ini
 
@@ -94,7 +90,6 @@ exit 0
 %dir /opt/llama-cpu
 /opt/llama-cpu/bin
 %{_bindir}/llama-*
-%config(noreplace) %{_sysconfdir}/sysconfig/llama-cpu
 %dir %{_sysconfdir}/llama-cpu
 %config(noreplace) %{_sysconfdir}/llama-cpu/models.ini
 %{_unitdir}/llama-server.service

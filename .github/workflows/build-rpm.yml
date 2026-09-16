@@ -63,7 +63,6 @@ jobs:
           echo "packaging llama-cpu $version, build $build_number"
 
           cp packaging/rpm/llama-server.service \
-             packaging/rpm/llama-cpu.sysconfig \
              packaging/rpm/llama-cpu-models.ini \
              packaging/rpm/README.md \
              rpmbuild/SOURCES/

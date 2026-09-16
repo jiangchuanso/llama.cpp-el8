@@ -18,12 +18,15 @@ Group=llama-cpu
 WorkingDirectory=/var/lib/llama-cpu
 SyslogIdentifier=llama-server
 
-# All server arguments live here, see /usr/share/doc/llama-cpu/README.md
-# The leading '-' makes the file optional: the unit still starts without it.
-EnvironmentFile=-/etc/sysconfig/llama-cpu
-# ${...} expands to several words, so LLAMA_SERVER_OPTS may hold many flags.
-# If LLAMA_SERVER_OPTS is empty, llama-server prints its usage and exits.
-ExecStart=/opt/llama-cpu/bin/llama-server ${LLAMA_SERVER_OPTS}
+# All server arguments are inline below. To change them, either edit this
+# file directly, or override via a drop-in:  systemctl edit llama-server
+# Full flag list: /opt/llama-cpu/bin/llama-server --help
+# See also /usr/share/doc/llama-cpu/README.md
+ExecStart=/opt/llama-cpu/bin/llama-server \
+    --host 0.0.0.0 \
+    --port 8080 \
+    --models-dir /var/lib/llama-cpu/models \
+    --models-preset /etc/llama-cpu/models.ini
 
 Restart=on-failure
 RestartSec=3
